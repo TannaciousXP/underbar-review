@@ -224,12 +224,36 @@
   //   }, {
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
-  _.extend = function(obj) {
+  _.extend = function() {
+    var listOfArg = [].slice.call(arguments);
+    var mainObject = arguments[0];
+    
+    for (var i = 1; i < listOfArg.length; i++) {
+      _.each(listOfArg[i], function (value, key) {
+        mainObject[key] = value;
+      });    
+    }    
+    
+    return mainObject;   
   };
+
+  
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    var listOfArg = [].slice.call(arguments);
+    var mainObject = arguments[0];
+    
+    for (var i = 1; i < listOfArg.length; i++) {
+      _.each(listOfArg[i], function (value, key) {
+        if (!mainObject.hasOwnProperty(key)) {
+          mainObject[key] = value;
+        }
+      });    
+    }    
+    
+    return mainObject; 
   };
 
 
@@ -273,7 +297,17 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var cache = {};
+    return function () {
+      var args = [].slice.call(arguments);
+      var key = JSON.stringify(args);    
+      if (!cache[key]) {
+        cache[key] = func.apply(this, args);            
+      } 
+      return cache[key];
+    };
   };
+ 
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -282,6 +316,12 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+
+    var params = [].slice.call(arguments).slice(2);
+    var fun = function () {
+      return func.apply(this, params);
+    };
+    setTimeout(fun, wait);
   };
 
 
